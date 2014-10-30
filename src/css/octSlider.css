@@ -1,0 +1,74 @@
+.octSliderBox
+{
+	overflow: hidden;
+}
+.octSliderBox ul{
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+.octSliderBox ul li{
+	position: relative;
+}
+.octSliderBox ul li a{
+	color: white;
+	position: absolute;
+	padding-left: 20px;
+	padding-right: 100%;
+	padding-bottom: 100%;
+	background-color: rgba(0,0,0,0.4);
+}
+.octSliderBox ul li img{
+	width: 100%;
+	height: auto;
+}
+.SelectorLayer
+{
+	position: absolute;
+	z-index: 100;
+}
+.SelectorLayer .selectorUl
+{
+	padding: 0px;
+	margin: 0 auto;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.SelectorLayer .select
+{
+	border:2px #87CEFA solid !important;
+}
+.SelectorLayer .selectorli
+{
+	width: 5px;
+	height: 5px;
+	cursor: pointer;
+	display: block;
+	float: left;
+	border:2px #eee solid;
+	border-radius:25px;
+}
+.SelectorLayer .prev
+{
+	float: left;
+	cursor: pointer;
+	z-index: 2;
+	border-style: solid;
+	border-color: transparent;
+}
+.SelectorLayer .next
+{
+	float: right;
+	cursor: pointer;
+	z-index: 2;
+	border-style: solid;
+	border-color: transparent;
+}
+.SelectorLayer .prev:hover
+{
+	border-color: transparent rgba(0,0,0,0.4) transparent transparent;
+}
+.SelectorLayer .next:hover
+{
+	border-color: transparent transparent transparent rgba(0,0,0,0.4);
+}

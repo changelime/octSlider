@@ -1,0 +1,63 @@
+<!DOCTYPE html>   
+<html>
+<head>
+	<title>octSlider</title>
+	<script type="text/javascript" src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="../src/js/octSlider.js"></script>
+	<link rel="stylesheet" type="text/css" href="../src/css/octSlider.css" />
+	<style type="text/css">
+		body
+		{
+			padding: 0px;
+			margin: 0px;
+		}
+		#octSlider
+		{
+			width: 50%;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+	<div id="octSlider"></div>
+	<script type="text/javascript">
+		var data = [
+			{
+				title : "1111111",
+				link : "111",
+				img : "http://images6.fanpop.com/image/photos/33200000/My-Little-Pony-Friendship-is-Magic-my-little-pony-friendship-is-magic-33207334-1097-620.png"
+			},
+			{
+				title : "222",
+				link : "222",
+				img : "http://images6.fanpop.com/image/photos/34700000/My-Little-Pony-Wallpapers-my-little-pony-friendship-is-magic-34795667-2560-1600.png"
+			},
+			{
+				title : "333",
+				link : "333",
+				img : "http://www.comicsonline.com/wp-content/uploads/My-little-pony-friendship-is-magic-mlpfim-wallpaper.jpg"
+			},
+			{
+				title : "444",
+				link : "444",
+				img : "http://tv-facts.net/wp-content/uploads/2012/11/My-Little-Pony-Friendship-Is-Magic-Wallpaper.jpg"
+			},
+			{
+				title : "555",
+				link : "55555",
+				img : "http://tv-facts.net/wp-content/uploads/2012/11/Amazing-Wallpapers-my-little-pony-friendship-is-magic-.jpg"
+			}
+		];
+		data = [{
+			title : "444",
+			link : "444",
+			img : []
+		}];
+		$(function(){
+			$("#octSlider").octSlider(data,{
+				time : 2000
+			});
+		});
+	</script>
+</body>
+</html>
