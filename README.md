@@ -2,8 +2,6 @@
 
 ## A simple image slider plugin for jQuery 
 
--------------
-
 ##Installation
 
 ##Step 1: Link required files
