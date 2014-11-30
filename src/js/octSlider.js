@@ -4,39 +4,46 @@
 * 2014-10-28 By@pcwow
 */
 (function($){
-	var setting = {
-		height : 0,
-		width : 0,
-		sliderSpeed : 1000,
-		time : 5000,
-		linkSize : 0,
-		length : 0,
-		size : 0,
-		index : 0,
-		run : 0,
-		flag : true,
-		selectBar : true,
-		sliderBtn : true,
-		showLink : true,
-		SelectorLayer : true,
-		that : null
-	};
-	var dom = {
-		octSliderBox:{
-			box : null,
-			ul : null,
-			li : [],
-			a : [],
-			imgs : []
-		},
-		SelectorLayer:{
-			box : null,
-			ul : null,
-			li : [],
-			prev : null,
-			next : null
-		}
-	};
+	var setting = {};
+	var dom = {};
+	var reset = function()
+ 	{
+ 		if(setting.length != 0)
+  			clearTimeout(setting.run);
+		setting = {
+			height : 0,
+			width : 0,
+			sliderSpeed : 1000,
+			time : 5000,
+			linkSize : 0,
+			length : 0,
+			size : 0,
+			index : 0,
+			run : 0,
+			flag : true,
+			selectBar : true,
+			sliderBtn : true,
+			showLink : true,
+			SelectorLayer : true,
+			that : null
+		};
+		dom = {
+			octSliderBox:{
+				box : null,
+				ul : null,
+				li : [],
+				a : [],
+				imgs : []
+			},
+			SelectorLayer:{
+				box : null,
+				ul : null,
+				li : [],
+				prev : null,
+				next : null
+			}
+		};
+ 	};
 	var initSetting = function(data, set, that){
 		setting.length = data.length;
 		if(typeof set === "object")
@@ -135,7 +142,8 @@
 		}
 		data.forEach(function(item, index){
  			var li = document.createElement("li");
- 			dom.octSliderBox.li.push(li);
+ 			
+ 				dom.octSliderBox.li.push(li);
  			if(setting.selectBar)
  			{
  				var selectorli = document.createElement("li");
@@ -193,6 +201,7 @@
 		});
 	};
 	var init = function(data, set, that, callback){
+		reset();
 		initPic(data, set, that, function(){
 			initSetting(data, set, that);
 			initDom(data);
@@ -211,7 +220,6 @@
 		setting.run = setTimeout(arguments.callee,setting.time);
  	};
     $.fn.octSlider = function(data,set){
-
  		init(data, set, this, function(){
  			$(window).resize(function(){
  				initSetting(data, set, setting.that);

@@ -14,8 +14,9 @@
 	color: white;
 	position: absolute;
 	padding-left: 20px;
-	padding-right: 100%;
+	padding-top: 20px;
 	padding-bottom: 100%;
+	width: 100%;
 	background-color: rgba(0,0,0,0.4);
 }
 .octSliderBox ul li img{
@@ -26,6 +27,8 @@
 {
 	position: absolute;
 	z-index: 100;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 .SelectorLayer .selectorUl
 {
@@ -33,6 +36,8 @@
 	margin: 0 auto;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 .SelectorLayer .select
 {
@@ -45,8 +50,10 @@
 	cursor: pointer;
 	display: block;
 	float: left;
-	border:2px #eee solid;
+	border:1px #eee solid;
 	border-radius:25px;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 .SelectorLayer .prev
 {
