@@ -29,6 +29,7 @@
 	z-index: 100;
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
+	-webkit-user-select: none;
 }
 .SelectorLayer .selectorUl
 {
