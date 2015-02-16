@@ -1,7 +1,7 @@
 #octSlider.js 0.01
 A simple image slider plugin for jQuery 
 
-[Demo](http://blog.czli.me/octSlider/example/ "Demo")
+[Demo](http://github.czli.me/octSlider/example/ "Demo")
 
 -----------------
 
