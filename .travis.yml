@@ -2,6 +2,7 @@ language: node_js
 node_js: stable
 
 install:
+  - npm install -g jspm
   - npm install --only=dev
 
 before_script:

@@ -1,5 +1,8 @@
-# OctSlider.js 0.1.0
+# OctSlider.js
 A simple image slider library 
+
+[![david-dm][david-dm-badge]][david-dm-link]
+[![travis-ci][travis-ci-badge]][travis-ci-link]
 
 [Demo](http://changelime.github.io/octSlider/dist/demo/ "Demo")
 
@@ -74,5 +77,12 @@ npm run built
 ```
 
 
+## 许可证
+MIT
 
 
+<!-- Link -->
+[david-dm-badge]:     https://david-dm.org/changelime/octSlider/dev-status.svg
+[david-dm-link]:      https://david-dm.org/changelime/octSlider?type=dev
+[travis-ci-badge]:    https://api.travis-ci.org/changelime/octSlider.svg
+[travis-ci-link]:     https://travis-ci.org/changelime/octSlider
