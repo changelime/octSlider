@@ -1,4 +1,5 @@
 import octSlider from "../../js/octSlider";
+import "../../css/octSlider.css!";
 var data = [
     {
         title : "11111111111111111111111111111111111111111111111111111222222222222221111111111",
@@ -28,6 +29,6 @@ var data = [
 ];
 octSlider(document.querySelector("#octSlider"), data, {
     autoRun: true,
-    // reverse: true,
-    // time: 3000
+    reverse: false,
+    time: 4000
 });

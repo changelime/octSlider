@@ -1,7 +1,7 @@
 # OctSlider.js 0.1.0
 A simple image slider library 
 
-[Demo](http://github.czli.me/octSlider/dist/demo/ "Demo")
+[Demo](http://changelime.github.io/octSlider/dist/demo/ "Demo")
 
 -----------------
 
@@ -13,14 +13,22 @@ jspm install github:changelime/octSlider
 ```
 
 ## 使用
-
 ```html
-<link rel="stylesheet" type="text/css" href="/css/octSlider.css" />
+<style type="text/css">
+	#octSlider
+	{
+		width: 800vw;
+		height: 400px;
+		font-size: 2rem;
+	}
+</style>
+<div id="octSlider"></div>
 ```
 
 
 ```js
 import octSlider from "changelime/octSlider";
+import "changelime/octSlider/dist/css/octSlider.css!";
 var data = [
 	{
 		title : "title_1",
@@ -48,7 +56,7 @@ var data = [
 		img : "/image_5.png"
 	}
 ];
-octSlider(document.querySelector("selector"), data, {
+octSlider(document.querySelector("#octSlider"), data, {
 	autoRun: true,
 	reverse: true,
 	time: 4000
