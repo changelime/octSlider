@@ -1,259 +1,258 @@
 /*
-* octSlider.js 0.01
-* 一个简单的图片滚动的jq插件
+* octSlider.js 0.10
+* 一个简单的图片滚动的javascript组件
 * 2014-10-28 By@pcwow
 */
-(function($){
-	var setting = {};
-	var dom = {};
-	var reset = function()
- 	{
- 		if(setting.length != 0)
-  			clearTimeout(setting.run);
-		setting = {
-			height : 0,
-			width : 0,
-			sliderSpeed : 1000,
-			time : 5000,
-			linkSize : 0,
-			length : 0,
-			size : 0,
-			index : 0,
-			run : 0,
-			flag : true,
-			selectBar : true,
-			sliderBtn : true,
-			showLink : true,
-			SelectorLayer : true,
-			that : null
+
+var template = {
+	content: `<div class="octs-outter" aria-live="polite" >
+					<ul class="octs-item-list" ></ul>
+					<ul class="octs-navigator-list" ></ul>
+					<div class="octs-button-group" >
+						<button class="octs-button octs-button-prev" role="button" ></button>
+						<button class="octs-button octs-button-next" role="button" ></button>
+					</div>
+				</div>`,
+	item: `<li class="octs-item" >
+				<section class="octs-item-main" >
+					<img src="" alt="" />
+				</section>
+				<footer class="octs-item-footer" >
+					<a href="#"></a>
+				</footer>
+			</li>`,
+	navigator: `<li class="octs-navigator-item" role="button" ></li>`//octs-navigator-item-active
+};
+var parseDom = function parseDom(html) {
+　　 var div = document.createElement("div");
+　　 div.innerHTML = html;
+　　 return div.childNodes;
+};
+
+var genItemDom = function genItemDom(data){
+	var dom = parseDom(template.item)[0];
+	var img = dom.children[0].children[0];
+	var link = dom.children[1].children[0];
+	img.src = data.img;
+	img.alt = data.title;
+	link.href = data.link;
+	link.innerText = data.title;
+	console.log(img);
+	return dom;
+};
+var genNavigatorDom = function genNavigatorDom(data){
+	var dom = parseDom(template.navigator)[0];
+	return dom;
+};
+var insertItemDom = function insertItemDom(sliderDom, data){
+	var list = sliderDom.children[0];
+	for( let [index, item] of data.entries() )
+	{
+		console.log(index, item);
+		let itemDom = genItemDom(item);
+		list.appendChild(itemDom);
+	}
+	return sliderDom;
+};
+var insertNavigatorDom = function insertNavigatorDom(sliderDom, data){
+	var list = sliderDom.children[1];
+	for( let [index, item] of data.entries() )
+	{
+		console.log(index, item);
+		let navigatorDom = genNavigatorDom(item);
+		if(index === 0)
+		{
+			navigatorDom.classList.add("octs-navigator-item-active");
+		}
+		list.appendChild(navigatorDom);
+	}
+	return sliderDom;
+};
+var removeNavigatorStatus = function removeNavigatorStatus(sliderDom){
+	var list = sliderDom.children[1].children;
+	for( let [index, item] of [].entries.call(list) )
+	{
+		item.classList.remove("octs-navigator-item-active");
+	}
+};
+var slidePrev = function slidePrev(sliderDom, index, side){
+	var ul = sliderDom.children[0];
+	var navigatorUl = sliderDom.children[1];
+	var navigator = navigatorUl.children[index];
+	var transition = ul.style.transition;
+	var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
+	var time = side ? 1 : (nowIndex - index);
+	var els = [].map.call(ul.children, item=>item);
+	var maxIndex = els.length - 1;
+	var first = els[0];
+	for(let i = 0; i < time; i++)
+	{
+		let nowEl = els[ maxIndex - i ];
+		ul.insertBefore(nowEl, first);
+		first = nowEl;
+	}
+	ul.style.cssText = `transition: none;
+						margin-left: -${time}00%;`;
+	setTimeout(function(){
+		ul.style.cssText = `transition: ${transition};
+						  	margin-left: 0%;`;
+		let listener = function (){
+			removeNavigatorStatus(sliderDom);
+			navigator.classList.add("octs-navigator-item-active");
+			sliderDom.slideOver = true;
+			ul.removeEventListener("transitionend", listener, false);	
+			console.log("remove slidePrev transitionend");
 		};
-		dom = {
-			octSliderBox:{
-				box : null,
-				ul : null,
-				li : [],
-				a : [],
-				imgs : []
-			},
-			SelectorLayer:{
-				box : null,
-				ul : null,
-				li : [],
-				prev : null,
-				next : null
+		ul.addEventListener("transitionend", listener, false);
+		console.log("add slidePrev transitionend");
+	}, 0);
+	sliderDom.slideOver = false;
+	console.log("slidePrev", nowIndex, time);
+};
+var slideNext = function slideNext(sliderDom, index, side){
+	var ul = sliderDom.children[0];
+	var navigatorUl = sliderDom.children[1];
+	var navigator = navigatorUl.children[index];
+	var transition = ul.style.transition;
+	var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
+	var time = side ? 1 : (index - nowIndex);
+	var els = [].map.call(ul.children, item=>item);
+	ul.style.marginLeft = `-${time}00%`;
+	var listener = function (){
+		for(let i = 0; i < time; i++)
+		{
+			ul.appendChild(els[i]);
+		}
+		ul.style.cssText = `transition: none;
+							margin-left: 0%;`;
+		setTimeout(function(){
+			ul.style.transition = transition;
+			removeNavigatorStatus(sliderDom);
+			navigator.classList.add("octs-navigator-item-active");
+			sliderDom.slideOver = true;
+			ul.removeEventListener("transitionend", listener, false);
+			console.log("remove slideNext transitionend");
+		}, 0);
+	};
+	ul.addEventListener("transitionend", listener, false);
+	console.log("add slideNext transitionend");
+	sliderDom.slideOver = false;
+	console.log("slideNext", nowIndex, time);
+};
+var getIndex = function getIndex(parent, child, callback){
+	var children = parent.children;
+	for( let [index, item] of [].entries.call(children) )
+	{
+		if( child === item  )
+		{
+			return index;
+		}
+		else if( callback && callback(item) )
+		{
+			return index;
+		}
+	}
+};
+var addEventListener = function addEventListener(sliderDom, setting){
+	var index = 0;
+	var total = sliderDom.children[0].children.length;
+	sliderDom.slideOver = true;
+	var prevBtn = sliderDom.children[2].children[0];
+	var nextBtn = sliderDom.children[2].children[1];
+	var navigators = sliderDom.children[1];
+	var mouseover = false;
+	var timeoutId = 0;
+	prevBtn.addEventListener("click", function(event){
+		console.log("prevBtn", index, sliderDom.slideOver);
+		if( !sliderDom.slideOver )
+			return;
+		index = (index - 1)  < 0 ? (total - 1) : (index - 1);
+		if( index === (total - 1) )
+		{
+			slidePrev(sliderDom, index, true);
+		}
+		else
+		{
+			slidePrev(sliderDom, index, false);
+		}
+	}, false);
+	nextBtn.addEventListener("click", function(event){
+		console.log("nextBtn", index, sliderDom.slideOver);
+		if( !sliderDom.slideOver )
+			return;
+		index = (index + 1) % total;
+		if( index === 0 )
+		{
+			slideNext(sliderDom, index, true);
+		}
+		else
+		{
+			slideNext(sliderDom, index, false);
+		}
+	}, false);
+	navigators.addEventListener("click", function(event){
+		var target = event.target;
+		if( !(sliderDom.slideOver) || (target.tagName.toLowerCase() != "li") )
+			return;
+		var targetIndex = getIndex(navigators, target);
+		if( targetIndex > index )
+		{
+			index = targetIndex;
+			slideNext(sliderDom, index, false);
+			console.log("click navigators next");
+		}
+		else if(targetIndex < index)
+		{
+			index = targetIndex;
+			slidePrev(sliderDom, index, false);
+			console.log("click navigators prev");
+		}
+		console.log(target, targetIndex);
+	}, false);
+	sliderDom.addEventListener("mouseover", function(event){
+			mouseover = true;
+	}, false);
+	sliderDom.addEventListener("mouseout", function(event){
+			mouseover = false;
+	}, false);
+	if( setting.autoRun )
+	{
+		var autoRun = function autoRun(){
+			if( !mouseover )
+			{
+				if( setting.reverse )
+				{
+					prevBtn.click();
+				}
+				else
+				{
+					nextBtn.click();
+				}
 			}
+			timeoutId = setTimeout(autoRun, setting.time);
 		};
- 	};
-	var initSetting = function(data, set, that){
-		setting.length = data.length;
-		if(typeof set === "object")
- 		{
- 			if(set.sliderSpeed)
- 				setting.sliderSpeed = set.sliderSpeed;
- 			if(set.time)
- 				setting.time = set.time;
- 			if(typeof set.selectBar == "boolean")
- 				setting.selectBar = set.selectBar;
- 			if(typeof set.sliderBtn == "boolean")
- 				setting.sliderBtn = set.sliderBtn;
- 			if(typeof set.showLink == "boolean")
- 				setting.showLink = set.showLink;
- 			if(set.selectBar == false && set.sliderBtn == false)
- 				setting.SelectorLayer = false;
- 		}
- 		setting.that = that;
-		setting.width = that[0].offsetWidth;
-		setting.height = setting.size * setting.width;
-		setting.linkSize = parseInt(setting.height / 10);
-	};
-	var initCss = function(data){
-		if(!$(dom.octSliderBox.box).hasClass("octSliderBox"))
-			$(dom.octSliderBox.box).addClass("octSliderBox");
-		$(dom.octSliderBox.box).css({"height" : setting.height+"px","width" : setting.width + "px"});
-		
-		if(setting.SelectorLayer)
-		{
-			if(!$(dom.SelectorLayer.box).hasClass("SelectorLayer"))
-				$(dom.SelectorLayer.box).addClass("SelectorLayer");
-			$(dom.SelectorLayer.box).css({"height" : (setting.height-(setting.linkSize*2))+"px", "width" : setting.width + "px"});
-			if(setting.selectBar)
-			{
-				if(!$(dom.SelectorLayer.ul).hasClass("selectorUl"))
-				{
-					$(dom.SelectorLayer.ul).addClass("selectorUl");
-					$(dom.SelectorLayer.ul).css({"height":"9px", "width" : setting.width/4+"px"});
-				}
-			}
-		}
-		if(setting.showLink)
-		{
-			dom.octSliderBox.a.forEach(function(item, index){
-				$(item).css({
-					"margin-top" : (setting.height-(setting.linkSize*2)) + "px",
-					"font-size" : setting.linkSize + "px"
-				});
-				item.href = data[index].link;
-				$(item).text(data[index].title);
-			});
-		}
-		dom.octSliderBox.li.forEach(function(item, index){
-			if(!$(item).hasClass("pic"))
-				$(item).addClass("pic");
-			$(item).css({"height":setting.height});
-		});
-		if(setting.selectBar)
-		{
-			dom.SelectorLayer.li.forEach(function(item, index){
-				if(!$(item).hasClass("selectorli"))
-				{
-					var margin = parseInt((($(dom.SelectorLayer.ul)[0].offsetWidth/setting.length)-9)/2);
-					$(item).addClass("selectorli");
-					$(item).css({"margin":"0px "+margin+"px"});
-				}
-			});
-		}
-		if(setting.sliderBtn)
-		{
-			var offsetHeight = $(dom.SelectorLayer.ul)[0] ? $(dom.SelectorLayer.ul)[0].offsetHeight : 0;
-			var height = (setting.height-(setting.linkSize*2))-offsetHeight;
-			var width = (setting.width/6);
-			var marginTop = (height-(width*2))/2;
-			if(!$(dom.SelectorLayer.prev).hasClass("prev"))
-				$(dom.SelectorLayer.prev).addClass("prev");
-			if(!$(dom.SelectorLayer.next).hasClass("next"))
-				$(dom.SelectorLayer.next).addClass("next");
-			$(dom.SelectorLayer.prev).css({"border-width" :width+"px "+width+"px "+width + "px "+"0px","margin-top":marginTop+"px"});
-			$(dom.SelectorLayer.next).css({"border-width" :width+"px "+"0px "+width + "px "+width+"px","margin-top":marginTop+"px"});
-		}
-	};
-	var initDom = function(data){
-		dom.octSliderBox.box = document.createElement("div");
-		dom.octSliderBox.ul = document.createElement("ul");
-		if(setting.SelectorLayer)
-		{
-			dom.SelectorLayer.box = document.createElement("div");
-			if(setting.selectBar)
-				dom.SelectorLayer.ul = document.createElement("ul");
-			if(setting.sliderBtn)
-			{
-				dom.SelectorLayer.prev = document.createElement("div");
-				dom.SelectorLayer.next = document.createElement("div");
-			}
-		}
-		data.forEach(function(item, index){
- 			var li = document.createElement("li");
- 			
- 				dom.octSliderBox.li.push(li);
- 			if(setting.selectBar)
- 			{
- 				var selectorli = document.createElement("li");
- 				dom.SelectorLayer.li.push(selectorli);
- 				selectorli.index = index;
- 				$(dom.SelectorLayer.ul).append(selectorli);
- 			}
- 			if(setting.showLink)
- 			{
- 				var a = document.createElement("a");
- 				dom.octSliderBox.a.push(a);
- 				$(li).append(a);
- 			}
-			$(li).append(dom.octSliderBox.imgs[index]);
-			$(dom.octSliderBox.ul).append(li);
- 		});
- 		$(dom.octSliderBox.box).append(dom.octSliderBox.ul);
- 		if(setting.SelectorLayer)
- 		{
- 			if(setting.selectBar)
- 				$(dom.SelectorLayer.box).append(dom.SelectorLayer.ul);
- 			if(setting.sliderBtn)
- 			{
- 				$(dom.SelectorLayer.box).append(dom.SelectorLayer.prev);
-	 			$(dom.SelectorLayer.box).append(dom.SelectorLayer.next);
- 			}
-			setting.that.append(dom.SelectorLayer.box);
- 		}
-		setting.that.append(dom.octSliderBox.box);
-	};
-	var initPic = function(data, set, that, callback){
-		if( !(data instanceof Array) || (data.length <= 0) )
-			throw new Error("data must be an array and length must > 0");
-		if( !data[0].img || !data[0].title || !data[0].link )
-			throw new Error("object must contains title, link and img");
-		var now = 0;
-		var imgs = [];
-		imgs.length = data.length;
-		data.forEach(function(item, index){
-			var img = new Image();
-			img.src = item.img;
-			img.onload = function(){
-				imgs[index] = img;
-				if((now++) == 0 || img.height/img.width < setting.size)
-					setting.size = img.height/img.width;
-				if(data.length == now)
-				{
-					dom.octSliderBox.imgs = imgs;
-					callback();
-				}
-			};
-			img.onerror = function(){
-				throw new Error("img must be an url");
-			};
-		});
-	};
-	var init = function(data, set, that, callback){
-		reset();
-		initPic(data, set, that, function(){
-			initSetting(data, set, that);
-			initDom(data);
-			initCss(data);
-			callback();
-		});
-	};
-	var slider = function(){
-		setting.flag = false;
-		setting.index = ((setting.index)%(setting.length));
-		$(".selectorli").removeClass("select");
-		$(".selectorli").eq(setting.index).addClass("select");
-		$(".pic").animate({"top":-(setting.index++)*setting.height},setting.sliderSpeed,function(){
-			setting.flag = true;
-		});
-		setting.run = setTimeout(arguments.callee,setting.time);
- 	};
-    $.fn.octSlider = function(data,set){
- 		init(data, set, this, function(){
- 			$(window).resize(function(){
- 				initSetting(data, set, setting.that);
- 				initCss(data);
- 				if(setting.flag)
-				{
-					setting.run = clearTimeout(setting.run);
-					slider();
-				}
- 			});
- 			$(".selectorli").click(function(){
-				if(setting.flag)
-				{
-					setting.run = clearTimeout(setting.run);
-		 			setting.index = this.index;
-		 			slider();
-				}
-	 		});
-	 		$(dom.SelectorLayer.prev).click(function(){
-	 			if(setting.flag)
-				{
-					setting.run = clearTimeout(setting.run);
-		 			setting.index = (setting.index >=2 ) ? setting.index-2 : setting.length-1;
-		 			slider(); 
-				}			
-	 		});
-	 		$(dom.SelectorLayer.next).click(function(){
-	 			if(setting.flag)
-				{
-					setting.run = clearTimeout(setting.run);
-		 			slider();
-				}
-	 		});
- 			slider();
- 		});
-    };
-})(jQuery);
+		timeoutId = setTimeout(autoRun, setting.time);
+	}
+	console.log(prevBtn, nextBtn);
+	return sliderDom;
+};
+var defaultSetting = {
+    autoRun: false,
+    reverse: false,
+    time: 3000
+};
+var octSlider = function octSlider(dom, data, setting){
+	setting = Object.assign(defaultSetting, setting);
+	var sliderDom = parseDom(template.content)[0];
+	//insert item dom
+	sliderDom = insertItemDom(sliderDom, data);
+	//insert navigator dom
+	sliderDom = insertNavigatorDom(sliderDom, data);
+	//add eventLisenner
+	sliderDom = addEventListener(sliderDom, setting);
+	//inert sliderDom to dom
+	dom.appendChild(sliderDom);
+	console.log("octSlider", sliderDom, setting);
+};
+
+export default octSlider;

@@ -1,61 +1,70 @@
-#octSlider.js 0.01
-A simple image slider plugin for jQuery 
+# OctSlider.js 0.1.0
+A simple image slider library 
 
-[Demo](http://github.czli.me/octSlider/example/ "Demo")
+[Demo](http://github.czli.me/octSlider/dist/demo/ "Demo")
 
 -----------------
 
-##Installation
 
-##Step 1: Link required files
+## 安装
 
-    <!-- jQuery library (served from bootcdn) -->
-	<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
-    <!-- octSlider Javascript file -->
-    <script src="/js/octSlider.js"></script>
-    <!-- octSlider CSS file -->
-    <link href="/css/octSlider.css" rel="stylesheet" />
+```sh
+jspm install github:changelime/octSlider
+```
 
-##Step 2: Create HTML markup
-    <div id="octSlider"></div>
+## 使用
 
-##Step 3: Call the octSlider
-data is a json array,each object must containing  `title` , `link` and `img` members
+```html
+<link rel="stylesheet" type="text/css" href="/css/octSlider.css" />
+```
 
-    $(document).ready(function(){
-        var data = [
-			{
-				title : "1111111",
-				link : "111",
-				img : "image/1.jpg"
-			},
-			{
-				title : "222",
-				link : "222",
-				img : "image/2.jpg"
-			},
-			{
-				title : "333",
-				link : "333",
-				img : "image/3.jpg"
-			},
-			{
-				title : "444",
-				link : "444",
-				img : "image/4.jpg"
-			},
-			{
-				title : "555",
-				link : "55555",
-				img : "image/5.jpg"
-			}
-		];
-        $('#octSlider').octSlider(data,{
-            selectBar : true,
-			sliderBtn : true,
-			showLink : true,
-			sliderSpeed : 1000,
-			time : 5000
-        });
-        //or just  $('#octSlider').octSlider(data);
-    });
+
+```js
+import octSlider from "changelime/octSlider";
+var data = [
+	{
+		title : "title_1",
+		link : "/link_1",
+		img : "/image_1.png"
+	},
+	{
+		title : "title_2",
+		link : "/link_2",
+		img : "/image_2.png"
+	},
+	{
+		title : "title_3",
+		link : "/link_3",
+		img : "/image_3.png"
+	},
+	{
+		title : "title_4",
+		link : "/link_4",
+		img : "/image_4.png"
+	},
+	{
+		title : "title_5",
+		link : "/link_5",
+		img : "/image_5.png"
+	}
+];
+octSlider(document.querySelector("selector"), data, {
+	autoRun: true,
+	reverse: true,
+	time: 4000
+});
+```
+
+## 开发
+```sh
+git clone https://github.com/changelime/octSlider.git
+cd octSlider
+npm install -g jspm #if not installed
+npm install -g gulp #if not installed
+npm install --only=dev && jspm install
+npm run built
+```
+
+
+
+
