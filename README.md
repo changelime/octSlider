@@ -20,7 +20,7 @@ jspm install github:changelime/octSlider
 <style type="text/css">
 	#octSlider
 	{
-		width: 800vw;
+		width: 800px;
 		height: 400px;
 		font-size: 2rem;
 	}
