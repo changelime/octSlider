@@ -7,9 +7,12 @@ Object.defineProperty(exports, "__esModule", {
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 /*
-* octSlider.js 0.10
+* octSlider.js 0.1.1
+* 0.0.1 prototype
+* 0.1.0 重构
+* 0.1.1 更改执行方式为Promise
 * 一个简单的图片滚动的javascript组件
-* 2014-10-28 By@pcwow
+* last update 2016-09-12 By@pcwow
 */
 
 var template = {
@@ -140,71 +143,73 @@ var removeNavigatorStatus = function removeNavigatorStatus(sliderDom) {
 	}
 };
 var slidePrev = function slidePrev(sliderDom, index, side) {
-	var ul = sliderDom.children[0];
-	var navigatorUl = sliderDom.children[1];
-	var navigator = navigatorUl.children[index];
-	var transition = ul.style.transition;
-	var nowIndex = getIndex(navigatorUl, null, function (item) {
-		return item.classList.contains("octs-navigator-item-active");
-	});
-	var time = side ? 1 : nowIndex - index;
-	var els = [].map.call(ul.children, function (item) {
-		return item;
-	});
-	var maxIndex = els.length - 1;
-	var first = els[0];
-	for (var i = 0; i < time; i++) {
-		var nowEl = els[maxIndex - i];
-		ul.insertBefore(nowEl, first);
-		first = nowEl;
-	}
-	ul.style.cssText = "transition: none;\n\t\t\t\t\t\tmargin-left: -" + time + "00%;";
-	setTimeout(function () {
-		ul.style.cssText = "transition: " + transition + ";\n\t\t\t\t\t\t  \tmargin-left: 0%;";
-		var listener = function listener() {
-			removeNavigatorStatus(sliderDom);
-			navigator.classList.add("octs-navigator-item-active");
-			sliderDom.slideOver = true;
-			ul.removeEventListener("transitionend", listener, false);
+	return new Promise(function (resolve, reject) {
+		var ul = sliderDom.children[0];
+		var navigatorUl = sliderDom.children[1];
+		var navigator = navigatorUl.children[index];
+		var transition = ul.style.transition;
+		var nowIndex = getIndex(navigatorUl, null, function (item) {
+			return item.classList.contains("octs-navigator-item-active");
+		});
+		var time = side ? 1 : nowIndex - index;
+		var els = [].map.call(ul.children, function (item) {
+			return item;
+		});
+		var maxIndex = els.length - 1;
+		var first = els[0];
+		for (var i = 0; i < time; i++) {
+			var nowEl = els[maxIndex - i];
+			ul.insertBefore(nowEl, first);
+			first = nowEl;
+		}
+		ul.style.cssText = "transition: none;\n\t\t\t\t\t\t\tmargin-left: -" + time + "00%;";
+		setTimeout(function () {
+			ul.style.cssText = "transition: " + transition + ";\n\t\t\t\t\t\t\t\tmargin-left: 0%;";
+			var listener = function listener() {
+				removeNavigatorStatus(sliderDom);
+				navigator.classList.add("octs-navigator-item-active");
+				ul.removeEventListener("transitionend", listener, false);
+				void 0;
+				resolve();
+			};
+			ul.addEventListener("transitionend", listener, false);
 			void 0;
+		}, 0);
+		void 0;
+	});
+};
+var slideNext = function slideNext(sliderDom, index, side) {
+	return new Promise(function (resolve, reject) {
+		var ul = sliderDom.children[0];
+		var navigatorUl = sliderDom.children[1];
+		var navigator = navigatorUl.children[index];
+		var transition = ul.style.transition;
+		var nowIndex = getIndex(navigatorUl, null, function (item) {
+			return item.classList.contains("octs-navigator-item-active");
+		});
+		var time = side ? 1 : index - nowIndex;
+		var els = [].map.call(ul.children, function (item) {
+			return item;
+		});
+		ul.style.marginLeft = "-" + time + "00%";
+		var listener = function listener() {
+			for (var i = 0; i < time; i++) {
+				ul.appendChild(els[i]);
+			}
+			ul.style.cssText = "transition: none;\n\t\t\t\t\t\t\t\tmargin-left: 0%;";
+			setTimeout(function () {
+				ul.style.transition = transition;
+				removeNavigatorStatus(sliderDom);
+				navigator.classList.add("octs-navigator-item-active");
+				ul.removeEventListener("transitionend", listener, false);
+				void 0;
+				resolve();
+			}, 0);
 		};
 		ul.addEventListener("transitionend", listener, false);
 		void 0;
-	}, 0);
-	sliderDom.slideOver = false;
-	void 0;
-};
-var slideNext = function slideNext(sliderDom, index, side) {
-	var ul = sliderDom.children[0];
-	var navigatorUl = sliderDom.children[1];
-	var navigator = navigatorUl.children[index];
-	var transition = ul.style.transition;
-	var nowIndex = getIndex(navigatorUl, null, function (item) {
-		return item.classList.contains("octs-navigator-item-active");
+		void 0;
 	});
-	var time = side ? 1 : index - nowIndex;
-	var els = [].map.call(ul.children, function (item) {
-		return item;
-	});
-	ul.style.marginLeft = "-" + time + "00%";
-	var listener = function listener() {
-		for (var i = 0; i < time; i++) {
-			ul.appendChild(els[i]);
-		}
-		ul.style.cssText = "transition: none;\n\t\t\t\t\t\t\tmargin-left: 0%;";
-		setTimeout(function () {
-			ul.style.transition = transition;
-			removeNavigatorStatus(sliderDom);
-			navigator.classList.add("octs-navigator-item-active");
-			sliderDom.slideOver = true;
-			ul.removeEventListener("transitionend", listener, false);
-			void 0;
-		}, 0);
-	};
-	ul.addEventListener("transitionend", listener, false);
-	void 0;
-	sliderDom.slideOver = false;
-	void 0;
 };
 var getIndex = function getIndex(parent, child, callback) {
 	var children = parent.children;
@@ -241,48 +246,52 @@ var getIndex = function getIndex(parent, child, callback) {
 	}
 };
 var addEventListener = function addEventListener(sliderDom, setting) {
-	var index = 0;
 	var total = sliderDom.children[0].children.length;
-	sliderDom.slideOver = true;
 	var prevBtn = sliderDom.children[2].children[0];
 	var nextBtn = sliderDom.children[2].children[1];
 	var navigators = sliderDom.children[1];
 	var mouseover = false;
-	var timeoutId = 0;
-	prevBtn.addEventListener("click", function (event) {
-		void 0;
-		if (!sliderDom.slideOver) return;
-		index = index - 1 < 0 ? total - 1 : index - 1;
-		if (index === total - 1) {
-			slidePrev(sliderDom, index, true);
-		} else {
-			slidePrev(sliderDom, index, false);
-		}
-	}, false);
-	nextBtn.addEventListener("click", function (event) {
-		void 0;
-		if (!sliderDom.slideOver) return;
-		index = (index + 1) % total;
-		if (index === 0) {
-			slideNext(sliderDom, index, true);
-		} else {
-			slideNext(sliderDom, index, false);
-		}
-	}, false);
+	sliderDom.index = 0;
+	sliderDom.slide = Promise.resolve();;
+	var goPrev = function goPrev(event) {
+		sliderDom.slide = sliderDom.slide.then(function () {
+			void 0;
+			sliderDom.index = sliderDom.index - 1 < 0 ? total - 1 : sliderDom.index - 1;
+			if (sliderDom.index === total - 1) {
+				return slidePrev(sliderDom, sliderDom.index, true);
+			} else {
+				return slidePrev(sliderDom, sliderDom.index, false);
+			}
+		});
+	};
+	var goNext = function goNext(event) {
+		sliderDom.slide = sliderDom.slide.then(function () {
+			void 0;
+			sliderDom.index = (sliderDom.index + 1) % total;
+			if (sliderDom.index === 0) {
+				return slideNext(sliderDom, sliderDom.index, true);
+			} else {
+				return slideNext(sliderDom, sliderDom.index, false);
+			}
+		});
+	};
+	prevBtn.addEventListener("click", goPrev, false);
+	nextBtn.addEventListener("click", goNext, false);
 	navigators.addEventListener("click", function (event) {
 		var target = event.target;
-		if (!sliderDom.slideOver || target.tagName.toLowerCase() != "li") return;
-		var targetIndex = getIndex(navigators, target);
-		if (targetIndex > index) {
-			index = targetIndex;
-			slideNext(sliderDom, index, false);
-			void 0;
-		} else if (targetIndex < index) {
-			index = targetIndex;
-			slidePrev(sliderDom, index, false);
-			void 0;
-		}
-		void 0;
+		if (target.tagName.toLowerCase() != "li") return;
+		sliderDom.slide = sliderDom.slide.then(function () {
+			var targetIndex = getIndex(navigators, target);
+			if (targetIndex > sliderDom.index) {
+				sliderDom.index = targetIndex;
+				void 0;
+				return slideNext(sliderDom, sliderDom.index, false);
+			} else if (targetIndex < sliderDom.index) {
+				sliderDom.index = targetIndex;
+				void 0;
+				return slidePrev(sliderDom, sliderDom.index, false);
+			}
+		});
 	}, false);
 	sliderDom.addEventListener("mouseover", function (event) {
 		mouseover = true;
@@ -294,14 +303,15 @@ var addEventListener = function addEventListener(sliderDom, setting) {
 		var autoRun = function autoRun() {
 			if (!mouseover) {
 				if (setting.reverse) {
-					prevBtn.click();
+					goPrev();
 				} else {
-					nextBtn.click();
+					goNext();
 				}
+				void 0;
 			}
-			timeoutId = setTimeout(autoRun, setting.time);
+			setTimeout(autoRun, setting.time);
 		};
-		timeoutId = setTimeout(autoRun, setting.time);
+		setTimeout(autoRun, setting.time);
 	}
 	void 0;
 	return sliderDom;

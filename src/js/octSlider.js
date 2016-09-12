@@ -1,7 +1,10 @@
 /*
-* octSlider.js 0.10
+* octSlider.js 0.1.1
+* 0.0.1 prototype
+* 0.1.0 重构
+* 0.1.1 更改执行方式为Promise
 * 一个简单的图片滚动的javascript组件
-* 2014-10-28 By@pcwow
+* last update 2016-09-12 By@pcwow
 */
 
 var template = {
@@ -76,68 +79,70 @@ var removeNavigatorStatus = function removeNavigatorStatus(sliderDom){
 	}
 };
 var slidePrev = function slidePrev(sliderDom, index, side){
-	var ul = sliderDom.children[0];
-	var navigatorUl = sliderDom.children[1];
-	var navigator = navigatorUl.children[index];
-	var transition = ul.style.transition;
-	var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
-	var time = side ? 1 : (nowIndex - index);
-	var els = [].map.call(ul.children, item=>item);
-	var maxIndex = els.length - 1;
-	var first = els[0];
-	for(let i = 0; i < time; i++)
-	{
-		let nowEl = els[ maxIndex - i ];
-		ul.insertBefore(nowEl, first);
-		first = nowEl;
-	}
-	ul.style.cssText = `transition: none;
-						margin-left: -${time}00%;`;
-	setTimeout(function(){
-		ul.style.cssText = `transition: ${transition};
-						  	margin-left: 0%;`;
-		let listener = function (){
-			removeNavigatorStatus(sliderDom);
-			navigator.classList.add("octs-navigator-item-active");
-			sliderDom.slideOver = true;
-			ul.removeEventListener("transitionend", listener, false);	
-			console.log("remove slidePrev transitionend");
-		};
-		ul.addEventListener("transitionend", listener, false);
-		console.log("add slidePrev transitionend");
-	}, 0);
-	sliderDom.slideOver = false;
-	console.log("slidePrev", nowIndex, time);
-};
-var slideNext = function slideNext(sliderDom, index, side){
-	var ul = sliderDom.children[0];
-	var navigatorUl = sliderDom.children[1];
-	var navigator = navigatorUl.children[index];
-	var transition = ul.style.transition;
-	var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
-	var time = side ? 1 : (index - nowIndex);
-	var els = [].map.call(ul.children, item=>item);
-	ul.style.marginLeft = `-${time}00%`;
-	var listener = function (){
+	return new Promise((resolve, reject)=>{
+		var ul = sliderDom.children[0];
+		var navigatorUl = sliderDom.children[1];
+		var navigator = navigatorUl.children[index];
+		var transition = ul.style.transition;
+		var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
+		var time = side ? 1 : (nowIndex - index);
+		var els = [].map.call(ul.children, item=>item);
+		var maxIndex = els.length - 1;
+		var first = els[0];
 		for(let i = 0; i < time; i++)
 		{
-			ul.appendChild(els[i]);
+			let nowEl = els[ maxIndex - i ];
+			ul.insertBefore(nowEl, first);
+			first = nowEl;
 		}
 		ul.style.cssText = `transition: none;
-							margin-left: 0%;`;
+							margin-left: -${time}00%;`;
 		setTimeout(function(){
-			ul.style.transition = transition;
-			removeNavigatorStatus(sliderDom);
-			navigator.classList.add("octs-navigator-item-active");
-			sliderDom.slideOver = true;
-			ul.removeEventListener("transitionend", listener, false);
-			console.log("remove slideNext transitionend");
+			ul.style.cssText = `transition: ${transition};
+								margin-left: 0%;`;
+			let listener = function (){
+				removeNavigatorStatus(sliderDom);
+				navigator.classList.add("octs-navigator-item-active");
+				ul.removeEventListener("transitionend", listener, false);	
+				console.log("remove slidePrev transitionend");
+				resolve();
+			};
+			ul.addEventListener("transitionend", listener, false);
+			console.log("add slidePrev transitionend");
 		}, 0);
-	};
-	ul.addEventListener("transitionend", listener, false);
-	console.log("add slideNext transitionend");
-	sliderDom.slideOver = false;
-	console.log("slideNext", nowIndex, time);
+		console.log("slidePrev", nowIndex, time);
+	});
+};
+var slideNext = function slideNext(sliderDom, index, side){
+	return new Promise((resolve, reject)=>{
+		var ul = sliderDom.children[0];
+		var navigatorUl = sliderDom.children[1];
+		var navigator = navigatorUl.children[index];
+		var transition = ul.style.transition;
+		var nowIndex = getIndex(navigatorUl, null, item=>item.classList.contains("octs-navigator-item-active"));
+		var time = side ? 1 : (index - nowIndex);
+		var els = [].map.call(ul.children, item=>item);
+		ul.style.marginLeft = `-${time}00%`;
+		var listener = function (){
+			for(let i = 0; i < time; i++)
+			{
+				ul.appendChild(els[i]);
+			}
+			ul.style.cssText = `transition: none;
+								margin-left: 0%;`;
+			setTimeout(function(){
+				ul.style.transition = transition;
+				removeNavigatorStatus(sliderDom);
+				navigator.classList.add("octs-navigator-item-active");
+				ul.removeEventListener("transitionend", listener, false);
+				console.log("remove slideNext transitionend");
+				resolve();
+			}, 0);
+		};
+		ul.addEventListener("transitionend", listener, false);
+		console.log("add slideNext transitionend");
+		console.log("slideNext", nowIndex, time);
+	});
 };
 var getIndex = function getIndex(parent, child, callback){
 	var children = parent.children;
@@ -154,60 +159,62 @@ var getIndex = function getIndex(parent, child, callback){
 	}
 };
 var addEventListener = function addEventListener(sliderDom, setting){
-	var index = 0;
 	var total = sliderDom.children[0].children.length;
-	sliderDom.slideOver = true;
 	var prevBtn = sliderDom.children[2].children[0];
 	var nextBtn = sliderDom.children[2].children[1];
 	var navigators = sliderDom.children[1];
 	var mouseover = false;
-	var timeoutId = 0;
-	prevBtn.addEventListener("click", function(event){
-		console.log("prevBtn", index, sliderDom.slideOver);
-		if( !sliderDom.slideOver )
-			return;
-		index = (index - 1)  < 0 ? (total - 1) : (index - 1);
-		if( index === (total - 1) )
-		{
-			slidePrev(sliderDom, index, true);
-		}
-		else
-		{
-			slidePrev(sliderDom, index, false);
-		}
-	}, false);
-	nextBtn.addEventListener("click", function(event){
-		console.log("nextBtn", index, sliderDom.slideOver);
-		if( !sliderDom.slideOver )
-			return;
-		index = (index + 1) % total;
-		if( index === 0 )
-		{
-			slideNext(sliderDom, index, true);
-		}
-		else
-		{
-			slideNext(sliderDom, index, false);
-		}
-	}, false);
+	sliderDom.index = 0;
+	sliderDom.slide = Promise.resolve();;
+	var goPrev = function goPrev(event){
+		sliderDom.slide = sliderDom.slide.then(()=>{
+			console.log("prevBtn", sliderDom.index);
+			sliderDom.index = (sliderDom.index - 1)  < 0 ? (total - 1) : (sliderDom.index - 1);
+			if( sliderDom.index === (total - 1) )
+			{
+				return slidePrev(sliderDom, sliderDom.index, true);
+			}
+			else
+			{
+				return slidePrev(sliderDom, sliderDom.index, false);
+			}
+		});
+	};
+	var goNext = function goNext(event){
+		sliderDom.slide = sliderDom.slide.then(()=>{
+			console.log("nextBtn", sliderDom.index);
+			sliderDom.index = (sliderDom.index + 1) % total;
+			if( sliderDom.index === 0 )
+			{
+				return slideNext(sliderDom, sliderDom.index, true);
+			}
+			else
+			{
+				return slideNext(sliderDom, sliderDom.index, false);
+			}
+		});
+	};
+	prevBtn.addEventListener("click", goPrev, false);
+	nextBtn.addEventListener("click", goNext, false);
 	navigators.addEventListener("click", function(event){
 		var target = event.target;
-		if( !(sliderDom.slideOver) || (target.tagName.toLowerCase() != "li") )
+		if( (target.tagName.toLowerCase() != "li") )
 			return;
-		var targetIndex = getIndex(navigators, target);
-		if( targetIndex > index )
-		{
-			index = targetIndex;
-			slideNext(sliderDom, index, false);
-			console.log("click navigators next");
-		}
-		else if(targetIndex < index)
-		{
-			index = targetIndex;
-			slidePrev(sliderDom, index, false);
-			console.log("click navigators prev");
-		}
-		console.log(target, targetIndex);
+		sliderDom.slide = sliderDom.slide.then(()=>{
+			var targetIndex = getIndex(navigators, target);
+			if( targetIndex > sliderDom.index )
+			{
+				sliderDom.index = targetIndex;
+				console.log("click navigators next");
+				return slideNext(sliderDom, sliderDom.index, false);
+			}
+			else if(targetIndex < sliderDom.index)
+			{
+				sliderDom.index = targetIndex;
+				console.log("click navigators prev");
+				return slidePrev(sliderDom, sliderDom.index, false);
+			}
+		});
 	}, false);
 	sliderDom.addEventListener("mouseover", function(event){
 			mouseover = true;
@@ -222,16 +229,17 @@ var addEventListener = function addEventListener(sliderDom, setting){
 			{
 				if( setting.reverse )
 				{
-					prevBtn.click();
+					goPrev();
 				}
 				else
 				{
-					nextBtn.click();
+					goNext();
 				}
+				console.log("autoRun");
 			}
-			timeoutId = setTimeout(autoRun, setting.time);
+			setTimeout(autoRun, setting.time);
 		};
-		timeoutId = setTimeout(autoRun, setting.time);
+		setTimeout(autoRun, setting.time);
 	}
 	console.log(prevBtn, nextBtn);
 	return sliderDom;
