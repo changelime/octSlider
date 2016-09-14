@@ -1886,12 +1886,14 @@ $__System.register("49", ["43", "48", "b", "c"], function (_export) {
 							navigator.classList.add("octs-navigator-item-active");
 							ul.removeEventListener("transitionend", listener, false);
 							void 0;
+							sliderDom.canSlide = true;
 							resolve();
 						};
 						ul.addEventListener("transitionend", listener, false);
 						void 0;
 					}, 0);
 					void 0;
+					sliderDom.canSlide = false;
 				});
 			};
 
@@ -1920,12 +1922,14 @@ $__System.register("49", ["43", "48", "b", "c"], function (_export) {
 							navigator.classList.add("octs-navigator-item-active");
 							ul.removeEventListener("transitionend", listener, false);
 							void 0;
+							sliderDom.canSlide = true;
 							resolve();
 						}, 0);
 					};
 					ul.addEventListener("transitionend", listener, false);
 					void 0;
 					void 0;
+					sliderDom.canSlide = false;
 				});
 			};
 
@@ -1971,46 +1975,54 @@ $__System.register("49", ["43", "48", "b", "c"], function (_export) {
 				var navigators = sliderDom.children[1];
 				var mouseover = false;
 				sliderDom.index = 0;
-				sliderDom.slide = _Promise.resolve();;
+				sliderDom.slide = _Promise.resolve();
+				sliderDom.canSlide = true;
 				var goPrev = function goPrev(event) {
-					sliderDom.slide = sliderDom.slide.then(function () {
-						void 0;
-						sliderDom.index = sliderDom.index - 1 < 0 ? total - 1 : sliderDom.index - 1;
-						if (sliderDom.index === total - 1) {
-							return slidePrev(sliderDom, sliderDom.index, true);
-						} else {
-							return slidePrev(sliderDom, sliderDom.index, false);
-						}
-					});
+					void 0;
+					if (sliderDom.canSlide) {
+						sliderDom.slide = sliderDom.slide.then(function () {
+							void 0;
+							sliderDom.index = sliderDom.index - 1 < 0 ? total - 1 : sliderDom.index - 1;
+							if (sliderDom.index === total - 1) {
+								return slidePrev(sliderDom, sliderDom.index, true);
+							} else {
+								return slidePrev(sliderDom, sliderDom.index, false);
+							}
+						});
+					}
 				};
 				var goNext = function goNext(event) {
-					sliderDom.slide = sliderDom.slide.then(function () {
-						void 0;
-						sliderDom.index = (sliderDom.index + 1) % total;
-						if (sliderDom.index === 0) {
-							return slideNext(sliderDom, sliderDom.index, true);
-						} else {
-							return slideNext(sliderDom, sliderDom.index, false);
-						}
-					});
+					void 0;
+					if (sliderDom.canSlide) {
+						sliderDom.slide = sliderDom.slide.then(function () {
+							void 0;
+							sliderDom.index = (sliderDom.index + 1) % total;
+							if (sliderDom.index === 0) {
+								return slideNext(sliderDom, sliderDom.index, true);
+							} else {
+								return slideNext(sliderDom, sliderDom.index, false);
+							}
+						});
+					}
 				};
 				prevBtn.addEventListener("click", goPrev, false);
 				nextBtn.addEventListener("click", goNext, false);
 				navigators.addEventListener("click", function (event) {
 					var target = event.target;
-					if (target.tagName.toLowerCase() != "li") return;
-					sliderDom.slide = sliderDom.slide.then(function () {
-						var targetIndex = getIndex(navigators, target);
-						if (targetIndex > sliderDom.index) {
-							sliderDom.index = targetIndex;
-							void 0;
-							return slideNext(sliderDom, sliderDom.index, false);
-						} else if (targetIndex < sliderDom.index) {
-							sliderDom.index = targetIndex;
-							void 0;
-							return slidePrev(sliderDom, sliderDom.index, false);
-						}
-					});
+					if (sliderDom.canSlide && target.tagName.toLowerCase() === "li") {
+						sliderDom.slide = sliderDom.slide.then(function () {
+							var targetIndex = getIndex(navigators, target);
+							if (targetIndex > sliderDom.index) {
+								sliderDom.index = targetIndex;
+								void 0;
+								return slideNext(sliderDom, sliderDom.index, false);
+							} else if (targetIndex < sliderDom.index) {
+								sliderDom.index = targetIndex;
+								void 0;
+								return slidePrev(sliderDom, sliderDom.index, false);
+							}
+						});
+					}
 				}, false);
 				sliderDom.addEventListener("mouseover", function (event) {
 					mouseover = true;
